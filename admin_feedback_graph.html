@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback Graph - Admin Dashboard - AgriBot</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: #fd7e14;
+            color: white;
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        .sidebar h2 { text-align: center; margin-bottom: 2rem; font-size: 1.5rem; }
+        .sidebar ul { list-style: none; }
+        .sidebar li { margin-bottom: 0.5rem; }
+        .sidebar a {
+            display: block;
+            padding: 1rem 2rem;
+            color: white;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+        .sidebar a:hover { background: rgba(255, 255, 255, 0.2); }
+        .sidebar a.active { background: rgba(255, 255, 255, 0.3); }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 2rem;
+        }
+
+        .header {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Stats grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .stat-card h3 { color: #666; margin-bottom: 1rem; }
+        .stat-card .number {
+            font-size: 2.5rem;
+            color: #fd7e14;
+            font-weight: bold;
+        }
+
+        /* Charts */
+        .charts-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        .chart-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .large-chart {
+            grid-column: 1 / -1;
+        }
+        .chart-container { height: 350px; position: relative; }
+
+        /* Buttons */
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            color: white;
+            display: inline-block;
+            font-size: 1rem;
+            margin-right: 1rem;
+        }
+        .btn-primary { background: #fd7e14; }
+        .btn-secondary { background: #6c757d; }
+        .btn-logout { background: #6c757d; }
+
+        .actions { margin-top: 2rem; text-align: center; }
+
+        /* Flash Messages */
+        .flash-messages {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        .flash-message {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 5px;
+            font-weight: bold;
+            color: white;
+        }
+        .flash-success { background: #28a745; }
+        .flash-danger { background: #dc3545; }
+        .flash-info { background: #17a2b8; }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>🔐 ADMIN</h2>
+        <ul>
+            <li><a href="/admin_dashboard" class="{% if current_page == 'dashboard' %}active{% endif %}">📊 DASHBOARD</a></li>
+            <li><a href="/admin_pending_users" class="{% if current_page == 'pending_users' %}active{% endif %}">👥 PENDING USER'S</a></li>
+            <li><a href="/admin_all_users" class="{% if current_page == 'all_users' %}active{% endif %}">📈 ALL USER'S</a></li>
+            <li><a href="/admin_user_profile" class="{% if current_page == 'user_profile' %}active{% endif %}">👤 USER PROFILE</a></li>
+            <li><a href="/admin_feedback" class="{% if current_page == 'feedback' %}active{% endif %}">💬 FEEDBACK</a></li>
+            <li><a href="/admin_feedback_graph" class="active">📊 FEEDBACK GRAPH</a></li>
+            <li><a href="/logout" class="btn-logout" style="margin: 1rem;">🚪 LOGOUT</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+
+        <!-- Flash Messages -->
+        <div class="flash-messages">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+
+        <!-- Header -->
+        <div class="header">
+            <h1>Feedback Analytics</h1>
+            <a href="/logout" class="btn btn-logout">Logout</a>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Feedback</h3>
+                <div class="number">
+                    {% set total = 0 %}
+                    {% for stat in feedback_by_type %}
+                        {% set total = total + stat[1] %}
+                    {% endfor %}
+                    {{ total }}
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <h3>Average Rating</h3>
+                <div class="number">
+                    {% set total_rating = 0 %}
+                    {% set total_count = 0 %}
+                    {% for stat in feedback_by_rating %}
+                        {% set total_rating = total_rating + (stat[0] * stat[1]) %}
+                        {% set total_count = total_count + stat[1] %}
+                    {% endfor %}
+                    {{ "%.1f"|format(total_rating / total_count) if total_count > 0 else "0.0" }}
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <h3>This Month</h3>
+                <div class="number">
+                    {{ monthly_trends[0][1] if monthly_trends else 0 }}
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <h3>Response Rate</h3>
+                <div class="number">87%</div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-container">
+
+            <!-- Feedback Type -->
+            <div class="chart-card">
+                <h2>📊 Feedback by Type</h2>
+                <div class="chart-container">
+                    <canvas id="feedbackTypeChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Rating -->
+            <div class="chart-card">
+                <h2>⭐ Rating Distribution</h2>
+                <div class="chart-container">
+                    <canvas id="ratingChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Trends -->
+            <div class="chart-card large-chart">
+                <h2>📈 Monthly Feedback Trends</h2>
+                <div class="chart-container">
+                    <canvas id="trendsChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="actions">
+            <a href="/admin_feedback" class="btn btn-primary">View All Feedback</a>
+            <a href="/admin_dashboard" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        setTimeout(() => {
+            document.querySelectorAll('.flash-message').forEach(msg => {
+                msg.style.opacity = '0';
+                msg.style.transition = 'opacity 0.5s';
+                setTimeout(() => msg.remove(), 500);
+            });
+        }, 4000);
+
+        /* Feedback Type Chart */
+        new Chart(document.getElementById('feedbackTypeChart'), {
+            type: 'doughnut',
+            data: {
+                labels: [{% for stat in feedback_by_type %}'{{ stat[0].title() }}'{% if not loop.last %}, {% endif %}{% endfor %}],
+                datasets: [{
+                    data: [{% for stat in feedback_by_type %}{{ stat[1] }}{% if not loop.last %}, {% endif %}{% endfor %}],
+                    backgroundColor: ['#28a745', '#17a2b8', '#ffc107', '#fd7e14']
+                }]
+            }
+        });
+
+        /* Rating Chart */
+        new Chart(document.getElementById('ratingChart'), {
+            type: 'bar',
+            data: {
+                labels: ['1 Star','2 Stars','3 Stars','4 Stars','5 Stars'],
+                datasets: [{
+                    label: 'Ratings',
+                    data: [
+                        {% for i in range(1, 6) %}
+                            {% set found = feedback_by_rating | selectattr(0, 'equalto', i) | list %}
+                            {{ found[0][1] if found else 0 }}{% if not loop.last %}, {% endif %}
+                        {% endfor %}
+                    ],
+                    backgroundColor: '#fd7e14'
+                }]
+            },
+            options: { scales: { y: { beginAtZero: true } } }
+        });
+
+        /* Monthly Trends Chart */
+        new Chart(document.getElementById('trendsChart'), {
+            type: 'line',
+            data: {
+                labels: [{% for trend in monthly_trends %}'{{ trend[0] }}'{% if not loop.last %}, {% endif %}{% endfor %}].reverse(),
+                datasets: [{
+                    label: 'Feedback Count',
+                    data: [{% for trend in monthly_trends %}{{ trend[1] }}{% if not loop.last %}, {% endif %}{% endfor %}].reverse(),
+                    borderColor: '#fd7e14',
+                    backgroundColor: 'rgba(253,126,20,0.1)',
+                    tension: 0.4
+                }]
+            }
+        });
+    </script>
+
+</body>
+</html>

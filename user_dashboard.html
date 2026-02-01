@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard - AgriBot</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background: #2c5530;
+            color: white;
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 1.5rem;
+        }
+        
+        .sidebar .block {
+            margin-bottom: 2rem;
+        }
+        
+        .sidebar .block-title {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .sidebar ul {
+            list-style: none;
+        }
+        
+        .sidebar li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .sidebar a {
+            display: block;
+            padding: 0.8rem 1.5rem;
+            color: white;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+        
+        .sidebar a:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .sidebar a.active {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 2rem;
+        }
+        
+        .header {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            color: #333;
+        }
+        
+        .header .welcome {
+            color: #666;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .stat-card h3 {
+            color: #666;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+        
+        .stat-card .number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #28a745;
+        }
+        
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        
+        .chart-container {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .chart-container h3 {
+            margin-bottom: 1rem;
+            color: #333;
+        }
+        
+        .feedback-chart {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .feedback-chart h3 {
+            margin-bottom: 1rem;
+            color: #333;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #218838;
+        }
+        
+        .btn-logout {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-logout:hover {
+            background: #c82333;
+        }
+        
+        .flash-messages {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .flash-message {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .flash-success {
+            background: #28a745;
+        }
+        
+        .flash-danger {
+            background: #dc3545;
+        }
+        
+        .flash-info {
+            background: #17a2b8;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>🌾 AgriBot</h2>
+        
+        <div class="block">
+            <div class="block-title">📊 Dashboard</div>
+            <ul>
+                <li><a href="/user_dashboard" class="active">📈 Dashboard</a></li>
+                <li><a href="/chatbot">🤖 Chatbot</a></li>
+            </ul>
+        </div>
+        
+        <div class="block">
+            <div class="block-title">👤 Accounts</div>
+            <ul>
+                <li><a href="/my_profile">📋 My Profile</a></li>
+                <li><a href="/edit_profile">✏️ Edit Profile</a></li>
+                <li><a href="/change_password">🔐 Change Password</a></li>
+                <li><a href="/history">📜 History</a></li>
+            </ul>
+        </div>
+        
+        <div class="block">
+            <div class="block-title">⚙️ General</div>
+            <ul>
+                <li><a href="/crop">🌱 Crop</a></li>
+                <li><a href="/fertilizer">🌿 Fertilizer</a></li>
+                <li><a href="/feedback">💬 Feedback</a></li>
+                <li><a href="/logout" class="btn-logout">🚪 Logout</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="flash-messages">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+
+        <div class="header">
+            <div>
+                <h1>User Dashboard</h1>
+                <p class="welcome">Welcome back, {{ session.username }}!</p>
+            </div>
+            <div>
+                <a href="/chatbot" class="btn btn-primary">Go to Chatbot</a>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>User Login's</h3>
+                <div class="number">{{ active_users }}</div>
+            </div>
+            <div class="stat-card">
+                <h3>Total No:Of User's</h3>
+                <div class="number">{{ total_users }}</div>
+            </div>
+            <div class="stat-card">
+                <h3>Bot Interaction</h3>
+                <div class="number">{{ bot_interactions }}</div>
+            </div>
+        </div>
+
+        <div class="content-grid">
+            <div class="chart-container">
+                <h3>Problem Solving</h3>
+                <canvas id="problemChart" width="400" height="200"></canvas>
+            </div>
+            <div class="feedback-chart">
+                <h3>User's Feedback About Bot</h3>
+                <canvas id="feedbackChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Auto-hide flash messages
+        setTimeout(() => {
+            const flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(msg => {
+                msg.style.opacity = '0';
+                msg.style.transition = 'opacity 0.5s';
+                setTimeout(() => msg.remove(), 500);
+            });
+        }, 5000);
+
+        // Problem Solving Chart
+        const problemCtx = document.getElementById('problemChart').getContext('2d');
+        const problemChart = new Chart(problemCtx, {
+            type: 'line',
+            data: {
+                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                datasets: [{
+                    label: 'Without Bot',
+                    data: [20, 25, 22, 28],
+                    borderColor: '#dc3545',
+                    backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                    tension: 0.4
+                }, {
+                    label: 'With Bot',
+                    data: [35, 45, 50, 55],
+                    borderColor: '#28a745',
+                    backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Feedback Chart
+        const feedbackCtx = document.getElementById('feedbackChart').getContext('2d');
+        const feedbackChart = new Chart(feedbackCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Positive', 'Neutral', 'Negative'],
+                datasets: [{
+                    data: [60, 25, 15],
+                    backgroundColor: [
+                        '#28a745',
+                        '#ffc107',
+                        '#dc3545'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

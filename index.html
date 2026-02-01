@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgriBot - An Intelligent Chatbot for Farmers</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #2c5530;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: #2c5530;
+        }
+        
+        .hero {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+            min-height: calc(100vh - 80px);
+        }
+        
+        .hero-content {
+            flex: 1;
+            color: white;
+        }
+        
+        .hero-content h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .hero-content h2 {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            color: #90EE90;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #fd7e14;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #e8690b;
+            transform: translateY(-2px);
+        }
+        
+        .hero-image {
+            flex: 1;
+            text-align: center;
+        }
+        
+        .robot-image {
+            width: 400px;
+            height: 400px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><rect fill="%23f0f0f0" width="400" height="400"/><circle cx="200" cy="150" r="80" fill="%23silver"/><rect x="160" y="150" width="80" height="120" fill="%23silver"/><circle cx="180" cy="130" r="15" fill="%23000"/><circle cx="220" cy="130" r="15" fill="%23000"/><rect x="190" y="160" width="20" height="10" fill="%23000"/><path d="M150 250 Q200 280 250 250" stroke="%23000" stroke-width="3" fill="none"/><circle cx="120" cy="200" r="20" fill="%2390EE90"/><circle cx="280" cy="200" r="20" fill="%23FFD700"/><circle cx="200" cy="320" r="25" fill="%23FF6347"/></svg>') no-repeat center;
+            background-size: contain;
+            border-radius: 50%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .footer {
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+        
+        .footer-info {
+            display: flex;
+            justify-content: space-around;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .flash-messages {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .flash-message {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .flash-success {
+            background: #28a745;
+        }
+        
+        .flash-danger {
+            background: #dc3545;
+        }
+        
+        .flash-info {
+            background: #17a2b8;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">🌾 AgriBot</div>
+            <ul class="nav-links">
+                <li><a href="/">HOME</a></li>
+                <li><a href="/login">USER LOGIN</a></li>
+                <li><a href="/register">REGISTER</a></li>
+                <li><a href="/admin_login">ADMIN LOGIN</a></li>
+                <li><a href="/about_us">ABOUT US</a></li>
+                <li><a href="/contact_us">CONTACT US</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="flash-messages">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1>HELLO & WELCOME</h1>
+            <h2>AGRIBOT</h2>
+            <p style="font-size: 1.2rem; margin-bottom: 2rem;">An Intelligent Chatbot for Farmers</p>
+            <div class="hero-buttons">
+                <a href="/login" class="btn btn-primary">Chatbot</a>
+                <a href="/prediction" class="btn btn-secondary">Prediction</a>
+            </div>
+        </div>
+        <div class="hero-image">
+            <div class="robot-image"></div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-info">
+            <div>Sandeep S K</div>
+            <div>Niranjan R M</div>
+            <div>Veeresh G S</div>
+            <div>Sanjay G M</div>
+        </div>
+    </footer>
+
+    <script>
+        // Auto-hide flash messages
+        setTimeout(() => {
+            const flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(msg => {
+                msg.style.opacity = '0';
+                msg.style.transition = 'opacity 0.5s';
+                setTimeout(() => msg.remove(), 500);
+            });
+        }, 5000);
+    </script>
+</body>
+</html>

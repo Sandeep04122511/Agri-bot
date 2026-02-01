@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - AgriBot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #2c5530;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: #2c5530;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .about-content {
+            background: white;
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            margin-bottom: 2rem;
+        }
+        
+        .about-content h1 {
+            color: #2c5530;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .about-content h2 {
+            color: #2c5530;
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .about-content p {
+            color: #333;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .feature-card {
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: 10px;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .feature-card h3 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+        
+        .feature-card p {
+            color: #666;
+            line-height: 1.5;
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .team {
+            background: white;
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            margin-bottom: 2rem;
+        }
+        
+        .team h2 {
+            color: #2c5530;
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .team-members {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+        
+        .team-member {
+            text-align: center;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .team-member img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin-bottom: 1rem;
+            background: #ddd;
+        }
+        
+        .team-member h3 {
+            color: #2c5530;
+            margin-bottom: 0.5rem;
+        }
+        
+        .team-member p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .footer {
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            text-align: center;
+            padding: 1rem;
+        }
+        
+        .footer-info {
+            display: flex;
+            justify-content: space-around;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .flash-messages {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .flash-message {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .flash-success {
+            background: #28a745;
+        }
+        
+        .flash-danger {
+            background: #dc3545;
+        }
+        
+        .flash-info {
+            background: #17a2b8;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">🌾 AgriBot</div>
+            <ul class="nav-links">
+                <li><a href="/">HOME</a></li>
+                <li><a href="/login">USER LOGIN</a></li>
+                <li><a href="/register">REGISTER</a></li>
+                <li><a href="/admin_login">ADMIN LOGIN</a></li>
+                <li><a href="/about_us">ABOUT US</a></li>
+                <li><a href="/contact_us">CONTACT US</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="flash-messages">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <div class="container">
+        <div class="about-content">
+            <h1>About AgriBot</h1>
+            <p>AgriBot is an intelligent chatbot designed specifically for farmers and agricultural enthusiasts. Our mission is to provide instant, accurate, and helpful information about farming practices, crop management, pest control, and agricultural best practices.</p>
+            
+            <p>Founded in 2025, AgriBot leverages advanced artificial intelligence and machine learning technologies to understand and respond to farmers' questions in real-time. Our system is trained on vast amounts of agricultural data, ensuring that you receive the most relevant and up-to-date information for your farming needs.</p>
+            
+            <h2>Our Vision</h2>
+            <p>We envision a world where every farmer has access to expert agricultural guidance at their fingertips. By democratizing agricultural knowledge through AI, we aim to increase crop yields, promote sustainable farming practices, and improve the livelihoods of farmers worldwide.</p>
+            
+            <h2>Key Features</h2>
+            <div class="features">
+                <div class="feature-card">
+                    <div class="feature-icon">🤖</div>
+                    <h3>AI-Powered Chat</h3>
+                    <p>Get instant answers to your farming questions from our intelligent chatbot, available 24/7.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🌱</div>
+                    <h3>Crop Advisor</h3>
+                    <p>Receive personalized crop recommendations based on your soil type, climate, and farming goals.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔍</div>
+                    <h3>Disease Detection</h3>
+                    <p>Identify crop diseases early and get treatment recommendations to protect your harvest.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🌿</div>
+                    <h3>Fertilizer Advisor</h3>
+                    <p>Optimize your fertilizer usage with customized recommendations for your specific crops.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Analytics Dashboard</h3>
+                    <p>Track your farming activities and get insights to improve your agricultural practices.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📱</div>
+                    <h3>Mobile Friendly</h3>
+                    <p>Access AgriBot from any device, anywhere in your field or farm office.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="team">
+            <h2>Our Team</h2>
+            <div class="team-members">
+                <div class="team-member">
+                    <div style="width: 100px; height: 100px; background: #2c5530; border-radius: 50%; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem;">👨‍💻</div>
+                    <h3>Dr. Rajesh Kumar</h3>
+                    <p>Chief Technology Officer</p>
+                    <p>AI and Machine Learning Expert</p>
+                </div>
+                <div class="team-member">
+                    <div style="width: 100px; height: 100px; background: #28a745; border-radius: 50%; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem;">👩‍🌾</div>
+                    <h3>Dr. Priya Sharma</h3>
+                    <p>Chief Agricultural Officer</p>
+                    <p>PhD in Agricultural Science</p>
+                </div>
+                <div class="team-member">
+                    <div style="width: 100px; height: 100px; background: #fd7e14; border-radius: 50%; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem;">👨‍💼</div>
+                    <h3>Amit Patel</h3>
+                    <p>CEO & Founder</p>
+                    <p>Entrepreneur & Agriculture Enthusiast</p>
+                </div>
+                <div class="team-member">
+                    <div style="width: 100px; height: 100px; background: #dc3545; border-radius: 50%; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem;">👩‍🔬</div>
+                    <h3>Dr. Sunita Reddy</h3>
+                    <p>Head of Research</h3>
+                    <p>Crop Science Specialist</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-info">
+            <div>Sandeep S K</div>
+            <div>Niranjan R M</div>
+            <div>Veeresh G S</div>
+            <div>Sanjay G M</div>
+        </div>
+    </footer>
+
+    <script>
+        // Auto-hide flash messages
+        setTimeout(() => {
+            const flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(msg => {
+                msg.style.opacity = '0';
+                msg.style.transition = 'opacity 0.5s';
+                setTimeout(() => msg.remove(), 500);
+            });
+        }, 5000);
+    </script>
+</body>
+</html>

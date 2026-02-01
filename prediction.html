@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction Services - AgriBot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background: #2c5530;
+            color: white;
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 1.5rem;
+        }
+        
+        .sidebar .block {
+            margin-bottom: 2rem;
+        }
+        
+        .sidebar .block-title {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .sidebar ul {
+            list-style: none;
+        }
+        
+        .sidebar li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .sidebar a {
+            display: block;
+            padding: 0.8rem 1.5rem;
+            color: white;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+        
+        .sidebar a:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .sidebar a.active {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 2rem;
+        }
+        
+        .header {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            color: #333;
+        }
+        
+        .prediction-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .prediction-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+        
+        .prediction-card:hover {
+            transform: translateY(-10px);
+        }
+        
+        .prediction-image {
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: white;
+            position: relative;
+        }
+        
+        .prediction-image.crop {
+            background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+        }
+        
+        .prediction-image.disease {
+            background: linear-gradient(135deg, #FF5722 0%, #D84315 100%);
+        }
+        
+        .prediction-image.fertilizer {
+            background: linear-gradient(135deg, #2196F3 0%, #0D47A1 100%);
+        }
+        
+        .prediction-content {
+            padding: 2rem;
+        }
+        
+        .prediction-content h3 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+        
+        .prediction-content p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+        
+        .prediction-features {
+            margin-bottom: 1.5rem;
+        }
+        
+        .prediction-features h4 {
+            color: #2c5530;
+            margin-bottom: 0.8rem;
+            font-size: 1.1rem;
+        }
+        
+        .prediction-features ul {
+            list-style: none;
+        }
+        
+        .prediction-features li {
+            color: #666;
+            margin-bottom: 0.5rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        
+        .prediction-features li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .prediction-action {
+            text-align: center;
+        }
+        
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-crop {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .btn-crop:hover {
+            background: #45a049;
+        }
+        
+        .btn-disease {
+            background: #FF5722;
+            color: white;
+        }
+        
+        .btn-disease:hover {
+            background: #E64A19;
+        }
+        
+        .btn-fertilizer {
+            background: #2196F3;
+            color: white;
+        }
+        
+        .btn-fertilizer:hover {
+            background: #1976D2;
+        }
+        
+        .info-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .info-section h2 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+        }
+        
+        .info-section p {
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .flash-messages {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .flash-message {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .flash-success {
+            background: #28a745;
+        }
+        
+        .flash-danger {
+            background: #dc3545;
+        }
+        
+        .flash-info {
+            background: #17a2b8;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>🌾 AgriBot</h2>
+        
+        <div class="block">
+            <div class="block-title">📊 Dashboard</div>
+            <ul>
+                <li><a href="/user_dashboard">📈 Dashboard</a></li>
+                <li><a href="/chatbot">🤖 Chatbot</a></li>
+            </ul>
+        </div>
+        
+        <div class="block">
+            <div class="block-title">👤 Accounts</div>
+            <ul>
+                <li><a href="/my_profile">📋 My Profile</a></li>
+                <li><a href="/edit_profile">✏️ Edit Profile</a></li>
+                <li><a href="/change_password">🔐 Change Password</a></li>
+                <li><a href="/history">📜 History</a></li>
+            </ul>
+        </div>
+        
+        <div class="block">
+            <div class="block-title">⚙️ General</div>
+            <ul>
+                <li><a href="/crop">🌱 Crop</a></li>
+                <li><a href="/fertilizer">🌿 Fertilizer</a></li>
+                <li><a href="/feedback">💬 Feedback</a></li>
+                <li><a href="/logout" style="color: #ff6b6b;">🚪 Logout</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="flash-messages">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+
+        <div class="header">
+            <h1>🔮 Prediction Services</h1>
+        </div>
+
+        <div class="info-section">
+            <h2>Advanced AI-Powered Agricultural Predictions</h2>
+            <p>Our prediction services use advanced machine learning models to provide you with accurate and personalized agricultural recommendations. Choose from our specialized prediction tools below to optimize your farming practices.</p>
+        </div>
+
+        <div class="prediction-container">
+            <div class="prediction-card" onclick="window.location.href='/crop_advisor'">
+                <div class="prediction-image crop">🌱</div>
+                <div class="prediction-content">
+                    <h3>Crop Advisor</h3>
+                    <p>Get personalized crop recommendations based on your soil type, climate conditions, and farming goals. Our AI analyzes multiple factors to suggest the best crops for your specific situation.</p>
+                    <div class="prediction-features">
+                        <h4>Key Features:</h4>
+                        <ul>
+                            <li>Soil analysis integration</li>
+                            <li>Climate-based recommendations</li>
+                            <li>Market trend analysis</li>
+                            <li>Yield prediction estimates</li>
+                        </ul>
+                    </div>
+                    <div class="prediction-action">
+                        <a href="/crop_advisor" class="btn btn-crop">Get Crop Advice</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="prediction-card" onclick="window.location.href='/disease_detector'">
+                <div class="prediction-image disease">🔍</div>
+                <div class="prediction-content">
+                    <h3>Disease Detector</h3>
+                    <p>Identify crop diseases early with our advanced image recognition system. Upload photos of your plants and receive instant diagnosis and treatment recommendations.</p>
+                    <div class="prediction-features">
+                        <h4>Key Features:</h4>
+                        <ul>
+                            <li>Image-based disease detection</li>
+                            <li>Early warning system</li>
+                            <li>Treatment recommendations</li>
+                            <li>Prevention guidelines</li>
+                        </ul>
+                    </div>
+                    <div class="prediction-action">
+                        <a href="/disease_detector" class="btn btn-disease">Detect Diseases</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="prediction-card" onclick="window.location.href='/fertilizer_advisor'">
+                <div class="prediction-image fertilizer">🌿</div>
+                <div class="prediction-content">
+                    <h3>Fertilizer Advisor</h3>
+                    <p>Optimize your fertilizer usage with customized recommendations. Our system calculates the exact nutrient requirements for your crops and soil conditions.</p>
+                    <div class="prediction-features">
+                        <h4>Key Features:</h4>
+                        <ul>
+                            <li>Soil nutrient analysis</li>
+                            <li>Customized NPK ratios</li>
+                            <li>Application scheduling</li>
+                            <li>Cost optimization</li>
+                        </ul>
+                    </div>
+                    <div class="prediction-action">
+                        <a href="/fertilizer_advisor" class="btn btn-fertilizer">Get Fertilizer Advice</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Auto-hide flash messages
+        setTimeout(() => {
+            const flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(msg => {
+                msg.style.opacity = '0';
+                msg.style.transition = 'opacity 0.5s';
+                setTimeout(() => msg.remove(), 500);
+            });
+        }, 5000);
+    </script>
+</body>
+</html>

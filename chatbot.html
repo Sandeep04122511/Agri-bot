@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot - AgriBot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background: #2c5530;
+            color: white;
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 1.5rem;
+        }
+        
+        .sidebar ul {
+            list-style: none;
+        }
+        
+        .sidebar li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .sidebar a {
+            display: block;
+            padding: 1rem 1.5rem;
+            color: white;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+        
+        .sidebar a:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .sidebar a.active {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        
+        .header {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+        }
+        
+        .header h1 {
+            color: #333;
+        }
+        
+        .chat-container {
+            flex: 1;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .chat-header {
+            background: #2c5530;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            max-height: calc(100vh - 300px);
+        }
+        
+        .message {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .message.user {
+            justify-content: flex-end;
+        }
+        
+        .message-content {
+            max-width: 70%;
+            padding: 0.8rem 1rem;
+            border-radius: 15px;
+            word-wrap: break-word;
+        }
+        
+        .message.user .message-content {
+            background: #28a745;
+            color: white;
+        }
+        
+        .message.bot .message-content {
+            background: #f1f1f1;
+            color: #333;
+        }
+        
+        .message-time {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 0.25rem;
+        }
+        
+        .chat-input {
+            padding: 1rem;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .chat-input input {
+            flex: 1;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            font-size: 1rem;
+            outline: none;
+        }
+        
+        .chat-input input:focus {
+            border-color: #2c5530;
+        }
+        
+        .chat-input button {
+            padding: 0.8rem 1.5rem;
+            background: #2c5530;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s;
+        }
+        
+        .chat-input button:hover {
+            background: #1e3a1f;
+        }
+        
+        .typing-indicator {
+            display: none;
+            padding: 1rem;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .typing-indicator.show {
+            display: block;
+        }
+        
+        .flash-messages {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .flash-message {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .flash-success {
+            background: #28a745;
+        }
+        
+        .flash-danger {
+            background: #dc3545;
+        }
+        
+        .flash-info {
+            background: #17a2b8;
+        }
+        
+        .prediction-options {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .prediction-btn {
+            padding: 0.8rem 1.5rem;
+            background: #fd7e14;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .prediction-btn:hover {
+            background: #e8690b;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>🤖 AgriBot Chat</h2>
+        <ul>
+            <li><a href="/user_dashboard">🏠 Home</a></li>
+            <li><a href="/about_us">ℹ️ About Us</a></li>
+            <li><a href="/prediction">🔮 Prediction</a></li>
+            <li><a href="/chatbot" class="active">🤖 Chat AI</a></li>
+            <li><a href="/user_dashboard">📊 Dashboard</a></li>
+            <li><a href="/logout" style="color: #ff6b6b;">🚪 Logout</a></li>
+        </ul>
+        
+        <div class="prediction-options">
+            <a href="/crop_advisor" class="prediction-btn">🌱 Crop Advisor</a>
+            <a href="/disease_detector" class="prediction-btn">🔍 Disease Detector</a>
+            <a href="/fertilizer_advisor" class="prediction-btn">🌿 Fertilizer Advisor</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="flash-messages">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+
+        <div class="header">
+            <h1>AgriBot Chat Assistant</h1>
+            <p>Ask me anything about farming, crops, fertilizers, or agricultural practices!</p>
+        </div>
+
+        <div class="chat-container">
+            <div class="chat-header">
+                <h3>🤖 AgriBot AI Assistant</h3>
+            </div>
+            
+            <div class="chat-messages" id="chatMessages">
+                <div class="message bot">
+                    <div class="message-content">
+                        Hello! I'm AgriBot, your intelligent agricultural assistant. How can I help you today?
+                        <div class="message-time">Just now</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="typing-indicator" id="typingIndicator">
+                AgriBot is typing...
+            </div>
+            
+            <div class="chat-input">
+                <input type="text" id="messageInput" placeholder="Type your message here..." onkeypress="handleKeyPress(event)">
+                <button onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    function handleKeyPress(event) {
+        if (event.key === 'Enter') {
+            sendMessage();
+        }
+    }
+
+    function sendMessage() {
+        const input = document.getElementById('messageInput');
+        const message = input.value.trim();
+        if (message === '') return;
+
+        addMessage(message, 'user');
+        input.value = '';
+        showTypingIndicator();
+
+        fetch('/chat_api', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: message })
+        })
+        .then(res => res.json())
+        .then(data => {
+            hideTypingIndicator();
+            addMessage(data.response, 'bot');
+        })
+        .catch(() => {
+            hideTypingIndicator();
+            addMessage("Server error. Please try again.", 'bot');
+        });
+    }
+
+    function addMessage(text, sender) {
+        const chat = document.getElementById('chatMessages');
+        const msg = document.createElement('div');
+        msg.className = `message ${sender}`;
+
+        const time = new Date().toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+
+        msg.innerHTML = `
+            <div class="message-content">
+                ${text}
+                <div class="message-time">${time}</div>
+            </div>
+        `;
+
+        chat.appendChild(msg);
+        chat.scrollTop = chat.scrollHeight;
+    }
+
+    function showTypingIndicator() {
+        document.getElementById('typingIndicator').classList.add('show');
+    }
+
+    function hideTypingIndicator() {
+        document.getElementById('typingIndicator').classList.remove('show');
+    }
+</script>
+
+</body>
+</html>

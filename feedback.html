@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback - AgriBot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background: #2c5530;
+            color: white;
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 1.5rem;
+        }
+        
+        .sidebar .block {
+            margin-bottom: 2rem;
+        }
+        
+        .sidebar .block-title {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .sidebar ul {
+            list-style: none;
+        }
+        
+        .sidebar li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .sidebar a {
+            display: block;
+            padding: 0.8rem 1.5rem;
+            color: white;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+        
+        .sidebar a:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .sidebar a.active {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 2rem;
+        }
+        
+        .header {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            color: #333;
+        }
+        
+        .feedback-container {
+            background: white;
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .feedback-container h2 {
+            color: #2c5530;
+            margin-bottom: 2rem;
+            text-align: center;
+            font-size: 1.8rem;
+        }
+        
+        .feedback-intro {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #2c5530;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        
+        .rating-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .rating-option {
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .rating-option:hover {
+            transform: scale(1.1);
+        }
+        
+        .rating-option input[type="radio"] {
+            display: none;
+        }
+        
+        .rating-option .emoji {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        
+        .rating-option .label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .rating-option input[type="radio"]:checked + .emoji {
+            transform: scale(1.2);
+        }
+        
+        .rating-option input[type="radio"]:checked ~ .label {
+            color: #2c5530;
+            font-weight: bold;
+        }
+        
+        .form-actions {
+            text-align: center;
+            margin-top: 2rem;
+        }
+        
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .feedback-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .feedback-type-card {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        
+        .feedback-type-card:hover {
+            background: #e8f5e8;
+            border-color: #2c5530;
+        }
+        
+        .feedback-type-card input[type="radio"] {
+            display: none;
+        }
+        
+        .feedback-type-card input[type="radio"]:checked + .feedback-type-content {
+            color: #2c5530;
+        }
+        
+        .feedback-type-card input[type="radio"]:checked ~ .feedback-type-card {
+            background: #e8f5e8;
+            border-color: #2c5530;
+        }
+        
+        .feedback-type-content {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .feedback-type-label {
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .flash-messages {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .flash-message {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .flash-success {
+            background: #28a745;
+        }
+        
+        .flash-danger {
+            background: #dc3545;
+        }
+        
+        .flash-info {
+            background: #17a2b8;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>🌾 AgriBot</h2>
+        
+        <div class="block">
+            <div class="block-title">📊 Dashboard</div>
+            <ul>
+                <li><a href="/user_dashboard">📈 Dashboard</a></li>
+                <li><a href="/chatbot">🤖 Chatbot</a></li>
+            </ul>
+        </div>
+        
+        <div class="block">
+            <div class="block-title">👤 Accounts</div>
+            <ul>
+                <li><a href="/my_profile">📋 My Profile</a></li>
+                <li><a href="/edit_profile">✏️ Edit Profile</a></li>
+                <li><a href="/change_password">🔐 Change Password</a></li>
+                <li><a href="/history">📜 History</a></li>
+            </ul>
+        </div>
+        
+        <div class="block">
+            <div class="block-title">⚙️ General</div>
+            <ul>
+                <li><a href="/crop">🌱 Crop</a></li>
+                <li><a href="/fertilizer">🌿 Fertilizer</a></li>
+                <li><a href="/feedback" class="active">💬 Feedback</a></li>
+                <li><a href="/logout" style="color: #ff6b6b;">🚪 Logout</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="flash-messages">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+
+        <div class="header">
+            <h1>Share Your Feedback</h1>
+        </div>
+
+        <form class="feedback-container" method="POST">
+            <h2>💬 Your Feedback Matters</h2>
+            
+            <div class="feedback-intro">
+                <p>Help us improve AgriBot by sharing your experience. Your feedback is valuable in making our agricultural assistant better for farmers like you.</p>
+            </div>
+            
+            <div class="form-group">
+                <label>What type of feedback would you like to share?</label>
+                <div class="feedback-types">
+                    <label class="feedback-type-card">
+                        <input type="radio" name="feedback_type" value="general" checked>
+                        <div class="feedback-type-content">💭</div>
+                        <div class="feedback-type-label">General</div>
+                    </label>
+                    <label class="feedback-type-card">
+                        <input type="radio" name="feedback_type" value="chatbot">
+                        <div class="feedback-type-content">🤖</div>
+                        <div class="feedback-type-label">Chatbot</div>
+                    </label>
+                    <label class="feedback-type-card">
+                        <input type="radio" name="feedback_type" value="prediction">
+                        <div class="feedback-type-content">🔮</div>
+                        <div class="feedback-type-label">Prediction</div>
+                    </label>
+                    <label class="feedback-type-card">
+                        <input type="radio" name="feedback_type" value="technical">
+                        <div class="feedback-type-content">🔧</div>
+                        <div class="feedback-type-label">Technical</div>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>How would you rate your overall experience?</label>
+                <div class="rating-group">
+                    <label class="rating-option">
+                        <input type="radio" name="rating" value="1">
+                        <span class="emoji">😞</span>
+                        <span class="label">Poor</span>
+                    </label>
+                    <label class="rating-option">
+                        <input type="radio" name="rating" value="2">
+                        <span class="emoji">😐</span>
+                        <span class="label">Fair</span>
+                    </label>
+                    <label class="rating-option">
+                        <input type="radio" name="rating" value="3">
+                        <span class="emoji">🙂</span>
+                        <span class="label">Good</span>
+                    </label>
+                    <label class="rating-option">
+                        <input type="radio" name="rating" value="4">
+                        <span class="emoji">😊</span>
+                        <span class="label">Very Good</span>
+                    </label>
+                    <label class="rating-option">
+                        <input type="radio" name="rating" value="5" checked>
+                        <span class="emoji">😍</span>
+                        <span class="label">Excellent</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="comments">Please share your detailed feedback:</label>
+                <textarea id="comments" name="comments" placeholder="Tell us about your experience with AgriBot. What did you like? What can we improve?" required></textarea>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Submit Feedback</button>
+                <a href="/user_dashboard" class="btn btn-secondary">Back to Dashboard</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Auto-hide flash messages
+        setTimeout(() => {
+            const flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(msg => {
+                msg.style.opacity = '0';
+                msg.style.transition = 'opacity 0.5s';
+                setTimeout(() => msg.remove(), 500);
+            });
+        }, 5000);
+
+        // Handle feedback type card selection
+        document.querySelectorAll('.feedback-type-card').forEach(card => {
+            card.addEventListener('click', function() {
+                document.querySelectorAll('.feedback-type-card').forEach(c => {
+                    c.style.background = '#f8f9fa';
+                    c.style.borderColor = 'transparent';
+                });
+                this.style.background = '#e8f5e8';
+                this.style.borderColor = '#2c5530';
+            });
+        });
+    </script>
+</body>
+</html>

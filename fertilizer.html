@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fertilizer Information - AgriBot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background: #2c5530;
+            color: white;
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 1.5rem;
+        }
+        
+        .sidebar .block {
+            margin-bottom: 2rem;
+        }
+        
+        .sidebar .block-title {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .sidebar ul {
+            list-style: none;
+        }
+        
+        .sidebar li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .sidebar a {
+            display: block;
+            padding: 0.8rem 1.5rem;
+            color: white;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+        
+        .sidebar a:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .sidebar a.active {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 2rem;
+        }
+        
+        .header {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            color: #333;
+        }
+        
+        .fertilizer-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .fertilizer-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.3s;
+        }
+        
+        .fertilizer-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .fertilizer-header {
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+            position: relative;
+        }
+        
+        .fertilizer-header.nitrogen {
+            background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+        }
+        
+        .fertilizer-header.phosphorus {
+            background: linear-gradient(135deg, #FF9800 0%, #E65100 100%);
+        }
+        
+        .fertilizer-header.potassium {
+            background: linear-gradient(135deg, #2196F3 0%, #0D47A1 100%);
+        }
+        
+        .fertilizer-header.organic {
+            background: linear-gradient(135deg, #795548 0%, #3E2723 100%);
+        }
+        
+        .fertilizer-content {
+            padding: 1.5rem;
+        }
+        
+        .fertilizer-content h3 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+        
+        .fertilizer-content p {
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+        
+        .fertilizer-benefits {
+            margin-top: 1rem;
+        }
+        
+        .fertilizer-benefits h4 {
+            color: #2c5530;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+        
+        .fertilizer-benefits ul {
+            list-style: none;
+            margin-left: 0;
+        }
+        
+        .fertilizer-benefits li {
+            color: #666;
+            margin-bottom: 0.3rem;
+            padding-left: 1rem;
+            position: relative;
+        }
+        
+        .fertilizer-benefits li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #28a745;
+        }
+        
+        .application-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .application-section h2 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+        }
+        
+        .application-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .method-card {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .method-card h3 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+        }
+        
+        .method-card p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .action-buttons {
+            text-align: center;
+            margin-top: 2rem;
+        }
+        
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            margin: 0 0.5rem;
+        }
+        
+        .btn-primary {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #218838;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .flash-messages {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .flash-message {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .flash-success {
+            background: #28a745;
+        }
+        
+        .flash-danger {
+            background: #dc3545;
+        }
+        
+        .flash-info {
+            background: #17a2b8;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>🌾 AgriBot</h2>
+        
+        <div class="block">
+            <div class="block-title">📊 Dashboard</div>
+            <ul>
+                <li><a href="/user_dashboard">📈 Dashboard</a></li>
+                <li><a href="/chatbot">🤖 Chatbot</a></li>
+            </ul>
+        </div>
+        
+        <div class="block">
+            <div class="block-title">👤 Accounts</div>
+            <ul>
+                <li><a href="/my_profile">📋 My Profile</a></li>
+                <li><a href="/edit_profile">✏️ Edit Profile</a></li>
+                <li><a href="/change_password">🔐 Change Password</a></li>
+                <li><a href="/history">📜 History</a></li>
+            </ul>
+        </div>
+        
+        <div class="block">
+            <div class="block-title">⚙️ General</div>
+            <ul>
+                <li><a href="/crop">🌱 Crop</a></li>
+                <li><a href="/fertilizer" class="active">🌿 Fertilizer</a></li>
+                <li><a href="/feedback">💬 Feedback</a></li>
+                <li><a href="/logout" style="color: #ff6b6b;">🚪 Logout</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="flash-messages">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+
+        <div class="header">
+            <h1>Fertilizer Information</h1>
+        </div>
+
+        <div class="fertilizer-container">
+            <div class="fertilizer-card">
+                <div class="fertilizer-header nitrogen">🌱</div>
+                <div class="fertilizer-content">
+                    <h3>Nitrogen Fertilizers</h3>
+                    <p>Nitrogen is essential for leaf growth and overall plant development. It's a key component of chlorophyll and amino acids.</p>
+                    <div class="fertilizer-benefits">
+                        <h4>Benefits:</h4>
+                        <ul>
+                            <li>Promotes vegetative growth</li>
+                            <li>Enhances leaf development</li>
+                            <li>Improves protein content</li>
+                            <li>Increases yield potential</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="fertilizer-card">
+                <div class="fertilizer-header phosphorus">🌾</div>
+                <div class="fertilizer-content">
+                    <h3>Phosphorus Fertilizers</h3>
+                    <p>Phosphorus is crucial for root development, flowering, and fruit production. It helps plants store and transfer energy.</p>
+                    <div class="fertilizer-benefits">
+                        <h4>Benefits:</h4>
+                        <ul>
+                            <li>Strengthens root systems</li>
+                            <li>Promotes flowering and fruiting</li>
+                            <li>Enhances seed development</li>
+                            <li>Improves disease resistance</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="fertilizer-card">
+                <div class="fertilizer-header potassium">🌿</div>
+                <div class="fertilizer-content">
+                    <h3>Potassium Fertilizers</h3>
+                    <p>Potassium regulates water uptake and activates enzymes. It's vital for overall plant health and stress resistance.</p>
+                    <div class="fertilizer-benefits">
+                        <h4>Benefits:</h4>
+                        <ul>
+                            <li>Regulates water balance</li>
+                            <li>Improves stress tolerance</li>
+                            <li>Enhances fruit quality</li>
+                            <li>Strengthens plant structure</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="fertilizer-card">
+                <div class="fertilizer-header organic">🍃</div>
+                <div class="fertilizer-content">
+                    <h3>Organic Fertilizers</h3>
+                    <p>Organic fertilizers improve soil structure and provide slow-release nutrients. They enhance soil microbial activity.</p>
+                    <div class="fertilizer-benefits">
+                        <h4>Benefits:</h4>
+                        <ul>
+                            <li>Improves soil health</li>
+                            <li>Provides slow-release nutrients</li>
+                            <li>Enhances microbial activity</li>
+                            <li>Sustainable and eco-friendly</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="application-section">
+            <h2>🌿 Fertilizer Application Methods</h2>
+            <p>Proper fertilizer application is crucial for maximum efficiency and minimal environmental impact. Choose the method that best suits your crop and soil conditions.</p>
+            
+            <div class="application-methods">
+                <div class="method-card">
+                    <h3>🌱 Broadcasting</h3>
+                    <p>Spreading fertilizer evenly over the soil surface. Ideal for field crops and before planting.</p>
+                </div>
+                <div class="method-card">
+                    <h3>💧 Fertigation</h3>
+                    <p>Applying fertilizer through irrigation systems. Efficient for water-soluble fertilizers.</p>
+                </div>
+                <div class="method-card">
+                    <h3>🎯 Band Placement</h3>
+                    <p>Placing fertilizer in bands near seeds or plants. Reduces waste and improves efficiency.</p>
+                </div>
+                <div class="method-card">
+                    <h3>🌿 Foliar Application</h3>
+                    <p>Spraying fertilizer directly on leaves. Quick nutrient uptake for immediate needs.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <a href="/fertilizer_advisor" class="btn btn-primary">Get Personalized Fertilizer Advice</a>
+            <a href="/chatbot" class="btn btn-secondary">Ask AgriBot</a>
+        </div>
+    </div>
+
+    <script>
+        // Auto-hide flash messages
+        setTimeout(() => {
+            const flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(msg => {
+                msg.style.opacity = '0';
+                msg.style.transition = 'opacity 0.5s';
+                setTimeout(() => msg.remove(), 500);
+            });
+        }, 5000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback - Admin Dashboard - AgriBot</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background: #fd7e14;
+            color: white;
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 1.5rem;
+        }
+        
+        .sidebar ul {
+            list-style: none;
+        }
+        
+        .sidebar li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .sidebar a {
+            display: block;
+            padding: 1rem 2rem;
+            color: white;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+        
+        .sidebar a:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .sidebar a.active {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 2rem;
+        }
+        
+        .header {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            color: #333;
+        }
+        
+        .header .welcome {
+            color: #666;
+        }
+        
+        .feedback-container {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 2rem;
+        }
+        
+        .feedback-list {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .feedback-header {
+            background: #fd7e14;
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .feedback-header h2 {
+            font-size: 1.5rem;
+        }
+        
+        .feedback-content {
+            padding: 1.5rem;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        
+        .feedback-item {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #fd7e14;
+        }
+        
+        .feedback-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .feedback-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .feedback-user {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .feedback-time {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .feedback-type {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .type-general {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        
+        .type-chatbot {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+        
+        .type-prediction {
+            background: #e8f5e8;
+            color: #388e3c;
+        }
+        
+        .type-technical {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+        
+        .feedback-rating {
+            color: #ffc107;
+            margin-bottom: 0.5rem;
+        }
+        
+        .feedback-comments {
+            color: #333;
+            line-height: 1.5;
+        }
+        
+        .stats-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .stats-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stats-card h3 {
+            color: #fd7e14;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.8rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .stat-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .stat-label {
+            color: #666;
+        }
+        
+        .stat-value {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: #fd7e14;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #e8690b;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .btn-logout {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-logout:hover {
+            background: #5a6268;
+        }
+        
+        .chart-container {
+            height: 200px;
+            margin-top: 1rem;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+        
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        .flash-messages {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .flash-message {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .flash-success {
+            background: #28a745;
+        }
+        
+        .flash-danger {
+            background: #dc3545;
+        }
+        
+        .flash-info {
+            background: #17a2b8;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>🔐 ADMIN</h2>
+        <ul>
+            <li><a href="/admin_dashboard" class="{% if current_page == 'dashboard' %}active{% endif %}">📊 DASHBOARD</a></li>
+            <li><a href="/admin_pending_users" class="{% if current_page == 'pending_users' %}active{% endif %}">👥 PENDING USER'S</a></li>
+            <li><a href="/admin_all_users" class="{% if current_page == 'all_users' %}active{% endif %}">📈 ALL USER'S</a></li>
+            <li><a href="/admin_all_users" class="{% if current_page == 'user_profile' %}active{% endif %}">👤 USER PROFILE</a></li>
+            <li><a href="/admin_feedback" class="{% if current_page == 'feedback' %}active{% endif %}">💬 FEEDBACK</a></li>
+            <li><a href="/admin_feedback_graph" class="{% if current_page == 'feedback_graph' %}active{% endif %}">📊 FEEDBACK GRAPH</a></li>
+            <li><a href="/logout" class="btn-logout" style="margin: 1rem;">🚪 LOGOUT</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="flash-messages">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+
+        <div class="header">
+            <div>
+                <h1>User Feedback</h1>
+                <p class="welcome">Manage and analyze user feedback</p>
+            </div>
+            <div>
+                <a href="/logout" class="btn btn-logout">Logout</a>
+            </div>
+        </div>
+
+        <div class="feedback-container">
+            <div class="feedback-list">
+                <div class="feedback-header">
+                    <h2>💬 User Feedback</h2>
+                </div>
+                
+                <div class="feedback-content">
+                    {% if all_feedback %}
+                        {% for feedback in all_feedback %}
+                        <div class="feedback-item">
+                            <div class="feedback-meta">
+                                <div class="feedback-user">{{ feedback[9] }} ({{ feedback[8] }})</div>
+                                <div class="feedback-time">{{ feedback[5][:16] }}</div>
+                            </div>
+                            <div class="feedback-type type-{{ feedback[3] }}">{{ feedback[3].title() }}</div>
+                            <div class="feedback-rating">
+                                {% for i in range(feedback[4]) %}
+                                    ⭐
+                                {% endfor %}
+                                {% for i in range(5 - feedback[4]) %}
+                                    ☆
+                                {% endfor %}
+                                ({{ feedback[4] }}/5)
+                            </div>
+                            <div class="feedback-comments">{{ feedback[6] or 'No comments provided' }}</div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-state">
+                            <div class="empty-state-icon">💬</div>
+                            <h3>No Feedback Yet</h3>
+                            <p>Users haven't submitted any feedback yet.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="stats-sidebar">
+                <div class="stats-card">
+                    <h3>📊 Feedback Statistics</h3>
+                    {% for stat in feedback_stats %}
+                    <div class="stat-item">
+                        <span class="stat-label">{{ stat[0].title() }}:</span>
+                        <span class="stat-value">{{ stat[1] }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="stats-card">
+                    <h3>📈 Rating Distribution</h3>
+                    <div class="chart-container">
+                        <canvas id="ratingChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="stats-card">
+                    <h3>🔍 Quick Actions</h3>
+                    <a href="/admin_feedback_graph" class="btn btn-primary" style="width: 100%; margin-bottom: 0.5rem;">View Detailed Graphs</a>
+                    <a href="/admin_dashboard" class="btn btn-secondary" style="width: 100%;">Back to Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Auto-hide flash messages
+        setTimeout(() => {
+            const flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(msg => {
+                msg.style.opacity = '0';
+                msg.style.transition = 'opacity 0.5s';
+                setTimeout(() => msg.remove(), 500);
+            });
+        }, 5000);
+
+        // Rating Chart
+        const ctx = document.getElementById('ratingChart').getContext('2d');
+        const ratingChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['5 Stars', '4 Stars', '3 Stars', '2 Stars', '1 Star'],
+                datasets: [{
+                    data: [
+                        {{ all_feedback|selectattr('4', 'equalto', 5)|list|length }},
+                        {{ all_feedback|selectattr('4', 'equalto', 4)|list|length }},
+                        {{ all_feedback|selectattr('4', 'equalto', 3)|list|length }},
+                        {{ all_feedback|selectattr('4', 'equalto', 2)|list|length }},
+                        {{ all_feedback|selectattr('4', 'equalto', 1)|list|length }}
+                    ],
+                    backgroundColor: [
+                        '#28a745',
+                        '#17a2b8',
+                        '#ffc107',
+                        '#fd7e14',
+                        '#dc3545'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            fontSize: 10
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

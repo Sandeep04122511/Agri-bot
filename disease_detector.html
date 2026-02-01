@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disease Detector - AgriBot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background: #2c5530;
+            color: white;
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 1.5rem;
+        }
+        
+        .sidebar .block {
+            margin-bottom: 2rem;
+        }
+        
+        .sidebar .block-title {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .sidebar ul {
+            list-style: none;
+        }
+        
+        .sidebar li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .sidebar a {
+            display: block;
+            padding: 0.8rem 1.5rem;
+            color: white;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+        
+        .sidebar a:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .sidebar a.active {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 2rem;
+        }
+        
+        .header {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            color: #333;
+        }
+        
+        .detector-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        
+        .upload-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .upload-section h2 {
+            color: #2c5530;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+        
+        .upload-area {
+            border: 2px dashed #ddd;
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+            margin-bottom: 1.5rem;
+        }
+        
+        .upload-area:hover {
+            border-color: #2c5530;
+            background: #f8f9fa;
+        }
+        
+        .upload-area.dragover {
+            border-color: #28a745;
+            background: #e8f5e8;
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+        
+        .upload-text {
+            color: #666;
+            margin-bottom: 1rem;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #218838;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .results-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .results-section h2 {
+            color: #2c5530;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+        
+        .preview-image {
+            width: 100%;
+            max-height: 300px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+        
+        .detection-result {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+        
+        .detection-result.healthy {
+            border-left: 4px solid #28a745;
+        }
+        
+        .detection-result.diseased {
+            border-left: 4px solid #dc3545;
+        }
+        
+        .detection-result h3 {
+            color: #2c5530;
+            margin-bottom: 0.5rem;
+        }
+        
+        .detection-result p {
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+        
+        .confidence {
+            font-weight: bold;
+            margin-top: 0.5rem;
+        }
+        
+        .confidence.high {
+            color: #28a745;
+        }
+        
+        .confidence.medium {
+            color: #ffc107;
+        }
+        
+        .confidence.low {
+            color: #dc3545;
+        }
+        
+        .treatment-recommendations {
+            background: #e8f5e8;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+        
+        .treatment-recommendations h4 {
+            color: #2c5530;
+            margin-bottom: 0.5rem;
+        }
+        
+        .treatment-recommendations ul {
+            list-style: none;
+            margin-left: 0;
+        }
+        
+        .treatment-recommendations li {
+            color: #666;
+            margin-bottom: 0.3rem;
+            padding-left: 1rem;
+            position: relative;
+        }
+        
+        .treatment-recommendations li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #28a745;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+        
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #2c5530;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .info-box {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .info-box h3 {
+            color: #856404;
+            margin-bottom: 0.5rem;
+        }
+        
+        .info-box p {
+            color: #856404;
+            font-size: 0.9rem;
+        }
+        
+        .crop-selector {
+            margin-bottom: 1.5rem;
+        }
+        
+        .crop-selector select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        
+        .crop-selector select:focus {
+            outline: none;
+            border-color: #2c5530;
+        }
+        
+        .flash-messages {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .flash-message {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .flash-success {
+            background: #28a745;
+        }
+        
+        .flash-danger {
+            background: #dc3545;
+        }
+        
+        .flash-info {
+            background: #17a2b8;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>🌾 AgriBot</h2>
+        
+        <div class="block">
+            <div class="block-title">📊 Dashboard</div>
+            <ul>
+                <li><a href="/user_dashboard">📈 Dashboard</a></li>
+                <li><a href="/chatbot">🤖 Chatbot</a></li>
+            </ul>
+        </div>
+        
+        <div class="block">
+            <div class="block-title">👤 Accounts</div>
+            <ul>
+                <li><a href="/my_profile">📋 My Profile</a></li>
+                <li><a href="/edit_profile">✏️ Edit Profile</a></li>
+                <li><a href="/change_password">🔐 Change Password</a></li>
+                <li><a href="/history">📜 History</a></li>
+            </ul>
+        </div>
+        
+        <div class="block">
+            <div class="block-title">⚙️ General</div>
+            <ul>
+                <li><a href="/crop">🌱 Crop</a></li>
+                <li><a href="/fertilizer">🌿 Fertilizer</a></li>
+                <li><a href="/feedback">💬 Feedback</a></li>
+                <li><a href="/logout" style="color: #ff6b6b;">🚪 Logout</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="flash-messages">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+
+        <div class="header">
+            <h1>🔍 Disease Detector</h1>
+        </div>
+
+        <div class="detector-container">
+            <div class="upload-section">
+                <h2>Upload Plant Image</h2>
+                
+                <div class="info-box">
+                    <h3>ℹ️ How it works</h3>
+                    <p>Upload a clear photo of your plant showing any symptoms. Our AI will analyze the image and detect potential diseases or confirm if your plant is healthy.</p>
+                </div>
+                
+                <div class="crop-selector">
+                    <label for="crop_type" style="display: block; margin-bottom: 0.5rem; color: #333; font-weight: 500;">Crop Type:</label>
+                    <select id="crop_type" name="crop_type">
+                        <option value="">Select crop type</option>
+                        <option value="tomato">Tomato</option>
+                        <option value="potato">Potato</option>
+                        <option value="corn">Corn</option>
+                        <option value="wheat">Wheat</option>
+                        <option value="rice">Rice</option>
+                        <option value="cotton">Cotton</option>
+                    </select>
+                </div>
+                
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">📸</div>
+                    <div class="upload-text">
+                        <p><strong>Click to upload</strong> or drag and drop</p>
+                        <p>PNG, JPG, GIF up to 10MB</p>
+                    </div>
+                    <input type="file" id="fileInput" class="file-input" accept="image/*">
+                </div>
+                
+                <button type="button" class="btn btn-primary" id="analyzeBtn" style="width: 100%;" disabled>Analyze Image</button>
+            </div>
+            
+            <div class="results-section">
+                <h2>🔍 Analysis Results</h2>
+                <div id="resultsContainer">
+                    <div style="text-align: center; padding: 2rem; color: #666;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">🔍</div>
+                        <p>Upload an image of your plant and click "Analyze Image" to detect diseases or confirm plant health.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Auto-hide flash messages
+        setTimeout(() => {
+            const flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(msg => {
+                msg.style.opacity = '0';
+                msg.style.transition = 'opacity 0.5s';
+                setTimeout(() => msg.remove(), 500);
+            });
+        }, 5000);
+
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const resultsContainer = document.getElementById('resultsContainer');
+        let uploadedFile = null;
+
+        // Handle file upload
+        uploadArea.addEventListener('click', () => fileInput.click());
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+        
+        function handleFile(file) {
+            if (file.type.startsWith('image/')) {
+                uploadedFile = file;
+                analyzeBtn.disabled = false;
+                
+                // Show preview
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    uploadArea.innerHTML = `
+                        <img src="${e.target.result}" alt="Preview" style="max-width: 100%; max-height: 200px; border-radius: 8px;">
+                        <p style="margin-top: 1rem; color: #666;">${file.name}</p>
+                    `;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        // Handle analyze button
+        analyzeBtn.addEventListener('click', () => {
+            if (!uploadedFile) return;
+            
+            const cropType = document.getElementById('crop_type').value;
+            
+            // Show loading
+            resultsContainer.innerHTML = `
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>Analyzing plant image...</p>
+                </div>
+            `;
+            
+            // Simulate analysis
+            setTimeout(() => {
+                const results = generateDiseaseResults(cropType);
+                displayResults(results, uploadedFile);
+            }, 3000);
+        });
+        
+        function generateDiseaseResults(cropType) {
+            // Simulated disease detection results
+            const diseases = {
+                tomato: [
+                    { name: 'Early Blight', confidence: 85, healthy: false },
+                    { name: 'Late Blight', confidence: 92, healthy: false },
+                    { name: 'Healthy', confidence: 95, healthy: true }
+                ],
+                potato: [
+                    { name: 'Potato Blight', confidence: 88, healthy: false },
+                    { name: 'Healthy', confidence: 93, healthy: true }
+                ],
+                corn: [
+                    { name: 'Corn Rust', confidence: 82, healthy: false },
+                    { name: 'Healthy', confidence: 90, healthy: true }
+                ]
+            };
+            
+            const defaultResults = [
+                { name: 'Healthy', confidence: 87, healthy: true }
+            ];
+            
+            const possibleResults = diseases[cropType] || defaultResults;
+            return possibleResults[Math.floor(Math.random() * possibleResults.length)];
+        }
+        
+        function displayResults(result, file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const confidenceClass = result.confidence >= 80 ? 'high' : result.confidence >= 60 ? 'medium' : 'low';
+                const healthClass = result.healthy ? 'healthy' : 'diseased';
+                
+                let html = `
+                    <img src="${e.target.result}" alt="Analyzed plant" class="preview-image">
+                    <div class="detection-result ${healthClass}">
+                        <h3>${result.name}</h3>
+                        <p><strong>Status:</strong> ${result.healthy ? 'Healthy Plant' : 'Disease Detected'}</p>
+                        <p><strong>Analysis:</strong> ${result.healthy ? 'No disease symptoms detected. Plant appears healthy.' : 'Disease symptoms detected. Early treatment recommended.'}</p>
+                        <p class="confidence ${confidenceClass}">Confidence: ${result.confidence}%</p>
+                `;
+                
+                if (!result.healthy) {
+                    html += `
+                        <div class="treatment-recommendations">
+                            <h4>🌿 Treatment Recommendations:</h4>
+                            <ul>
+                                <li>Remove infected leaves immediately</li>
+                                <li>Apply appropriate fungicide</li>
+                                <li>Improve air circulation around plants</li>
+                                <li>Monitor nearby plants for symptoms</li>
+                                <li>Consider crop rotation for next season</li>
+                            </ul>
+                        </div>
+                    `;
+                }
+                
+                html += `
+                    </div>
+                    <div style="margin-top: 1.5rem; text-align: center;">
+                        <a href="/chatbot" class="btn btn-secondary">Ask for More Details</a>
+                        <button type="button" class="btn btn-primary" onclick="resetDetector()" style="margin-left: 0.5rem;">Analyze Another Image</button>
+                    </div>
+                `;
+                
+                resultsContainer.innerHTML = html;
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        function resetDetector() {
+            uploadedFile = null;
+            analyzeBtn.disabled = true;
+            fileInput.value = '';
+            uploadArea.innerHTML = `
+                <div class="upload-icon">📸</div>
+                <div class="upload-text">
+                    <p><strong>Click to upload</strong> or drag and drop</p>
+                    <p>PNG, JPG, GIF up to 10MB</p>
+                </div>
+            `;
+            resultsContainer.innerHTML = `
+                <div style="text-align: center; padding: 2rem; color: #666;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">🔍</div>
+                    <p>Upload an image of your plant and click "Analyze Image" to detect diseases or confirm plant health.</p>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

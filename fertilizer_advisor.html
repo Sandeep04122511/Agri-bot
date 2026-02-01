@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fertilizer Advisor - AgriBot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background: #2c5530;
+            color: white;
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 1.5rem;
+        }
+        
+        .sidebar .block {
+            margin-bottom: 2rem;
+        }
+        
+        .sidebar .block-title {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .sidebar ul {
+            list-style: none;
+        }
+        
+        .sidebar li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .sidebar a {
+            display: block;
+            padding: 0.8rem 1.5rem;
+            color: white;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+        
+        .sidebar a:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .sidebar a.active {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 2rem;
+        }
+        
+        .header {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            color: #333;
+        }
+        
+        .advisor-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        
+        .form-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .form-section h2 {
+            color: #2c5530;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: #2c5530;
+        }
+        
+        .results-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .results-section h2 {
+            color: #2c5530;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+        
+        .fertilizer-recommendation {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            border-left: 4px solid #2196F3;
+        }
+        
+        .fertilizer-recommendation h3 {
+            color: #2c5530;
+            margin-bottom: 0.5rem;
+        }
+        
+        .fertilizer-recommendation p {
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+        
+        .npk-ratio {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .npk-item {
+            flex: 1;
+            text-align: center;
+            padding: 0.5rem;
+            background: #e3f2fd;
+            border-radius: 8px;
+        }
+        
+        .npk-item .letter {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2196F3;
+        }
+        
+        .npk-item .value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .application-schedule {
+            background: #e8f5e8;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+        
+        .application-schedule h4 {
+            color: #2c5530;
+            margin-bottom: 0.5rem;
+        }
+        
+        .application-schedule ul {
+            list-style: none;
+        }
+        
+        .application-schedule li {
+            color: #666;
+            margin-bottom: 0.3rem;
+            padding-left: 1rem;
+            position: relative;
+        }
+        
+        .application-schedule li:before {
+            content: "📅";
+            position: absolute;
+            left: 0;
+        }
+        
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: #2196F3;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1976D2;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+        
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #2c5530;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .info-box {
+            background: #e3f2fd;
+            border: 1px solid #2196F3;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .info-box h3 {
+            color: #1976D2;
+            margin-bottom: 0.5rem;
+        }
+        
+        .info-box p {
+            color: #1976D2;
+            font-size: 0.9rem;
+        }
+        
+        .cost-estimate {
+            background: #fff3cd;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+        
+        .cost-estimate h4 {
+            color: #856404;
+            margin-bottom: 0.5rem;
+        }
+        
+        .cost-estimate .amount {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #856404;
+        }
+        
+        .flash-messages {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .flash-message {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .flash-success {
+            background: #28a745;
+        }
+        
+        .flash-danger {
+            background: #dc3545;
+        }
+        
+        .flash-info {
+            background: #17a2b8;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>🌾 AgriBot</h2>
+        
+        <div class="block">
+            <div class="block-title">📊 Dashboard</div>
+            <ul>
+                <li><a href="/user_dashboard">📈 Dashboard</a></li>
+                <li><a href="/chatbot">🤖 Chatbot</a></li>
+            </ul>
+        </div>
+        
+        <div class="block">
+            <div class="block-title">👤 Accounts</div>
+            <ul>
+                <li><a href="/my_profile">📋 My Profile</a></li>
+                <li><a href="/edit_profile">✏️ Edit Profile</a></li>
+                <li><a href="/change_password">🔐 Change Password</a></li>
+                <li><a href="/history">📜 History</a></li>
+            </ul>
+        </div>
+        
+        <div class="block">
+            <div class="block-title">⚙️ General</div>
+            <ul>
+                <li><a href="/crop">🌱 Crop</a></li>
+                <li><a href="/fertilizer">🌿 Fertilizer</a></li>
+                <li><a href="/feedback">💬 Feedback</a></li>
+                <li><a href="/logout" style="color: #ff6b6b;">🚪 Logout</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="flash-messages">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+
+        <div class="header">
+            <h1>🌿 Fertilizer Advisor</h1>
+        </div>
+
+        <div class="advisor-container">
+            <div class="form-section">
+                <h2>Enter Your Farm Details</h2>
+                
+                <div class="info-box">
+                    <h3>ℹ️ How it works</h3>
+                    <p>Our AI-powered fertilizer advisor analyzes your soil conditions and crop requirements to provide personalized fertilizer recommendations for optimal growth and yield.</p>
+                </div>
+                
+                <form id="fertilizerAdvisorForm">
+                    <div class="form-group">
+                        <label for="crop_type">Crop Type:</label>
+                        <select id="crop_type" name="crop_type" required>
+                            <option value="">Select crop type</option>
+                            <option value="rice">Rice</option>
+                            <option value="wheat">Wheat</option>
+                            <option value="maize">Maize (Corn)</option>
+                            <option value="cotton">Cotton</option>
+                            <option value="sugarcane">Sugarcane</option>
+                            <option value="vegetables">Vegetables</option>
+                            <option value="pulses">Pulses</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="soil_type">Soil Type:</label>
+                        <select id="soil_type" name="soil_type" required>
+                            <option value="">Select soil type</option>
+                            <option value="clay">Clay</option>
+                            <option value="sandy">Sandy</option>
+                            <option value="loamy">Loamy</option>
+                            <option value="silty">Silty</option>
+                            <option value="peaty">Peaty</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="soil_ph">Soil pH Level:</label>
+                        <select id="soil_ph" name="soil_ph" required>
+                            <option value="">Select pH level</option>
+                            <option value="acidic">Acidic (pH < 6.5)</option>
+                            <option value="neutral">Neutral (pH 6.5-7.5)</option>
+                            <option value="alkaline">Alkaline (pH > 7.5)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="farm_size">Farm Size (acres):</label>
+                        <input type="number" id="farm_size" name="farm_size" min="0.1" step="0.1" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="growth_stage">Growth Stage:</label>
+                        <select id="growth_stage" name="growth_stage" required>
+                            <option value="">Select growth stage</option>
+                            <option value="seedling">Seedling</option>
+                            <option value="vegetative">Vegetative</option>
+                            <option value="flowering">Flowering</option>
+                            <option value="fruiting">Fruiting</option>
+                            <option value="maturity">Maturity</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="previous_yield">Previous Yield (tons/acre):</label>
+                        <input type="number" id="previous_yield" name="previous_yield" min="0" step="0.1">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Get Fertilizer Recommendations</button>
+                </form>
+            </div>
+            
+            <div class="results-section">
+                <h2>🌿 Fertilizer Recommendations</h2>
+                <div id="resultsContainer">
+                    <div style="text-align: center; padding: 2rem; color: #666;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">🌿</div>
+                        <p>Fill in your farm details and click "Get Fertilizer Recommendations" to receive personalized fertilizer suggestions based on your soil and crop requirements.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Auto-hide flash messages
+        setTimeout(() => {
+            const flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(msg => {
+                msg.style.opacity = '0';
+                msg.style.transition = 'opacity 0.5s';
+                setTimeout(() => msg.remove(), 500);
+            });
+        }, 5000);
+
+        // Handle form submission
+        document.getElementById('fertilizerAdvisorForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const resultsContainer = document.getElementById('resultsContainer');
+            
+            // Show loading
+            resultsContainer.innerHTML = `
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>Analyzing soil and crop requirements...</p>
+                </div>
+            `;
+            
+            // Simulate API call with sample data
+            setTimeout(() => {
+                const recommendations = generateFertilizerRecommendations(formData);
+                displayRecommendations(recommendations);
+            }, 2500);
+        });
+
+        function generateFertilizerRecommendations(formData) {
+            // This is a simplified recommendation algorithm
+            // In a real application, this would call your trained model
+            const cropType = formData.get('crop_type');
+            const soilType = formData.get('soil_type');
+            const soilPh = formData.get('soil_ph');
+            const growthStage = formData.get('growth_stage');
+            const farmSize = parseFloat(formData.get('farm_size'));
+            
+            let recommendations = {
+                npk: { n: 0, p: 0, k: 0 },
+                fertilizer: '',
+                application: [],
+                cost: 0
+            };
+            
+            // Sample recommendation logic based on crop type
+            switch(cropType) {
+                case 'rice':
+                    recommendations.npk = { n: 120, p: 60, k: 40 };
+                    recommendations.fertilizer = 'NPK complex (20:10:10) + Urea';
+                    recommendations.application = [
+                        'Basal application: 40% at planting',
+                        'First top dressing: 30% at tillering',
+                        'Second top dressing: 30% at panicle initiation'
+                    ];
+                    recommendations.cost = farmSize * 4500;
+                    break;
+                    
+                case 'wheat':
+                    recommendations.npk = { n: 100, p: 50, k: 25 };
+                    recommendations.fertilizer = 'DAP + Urea + MOP';
+                    recommendations.application = [
+                        'Basal application: 50% at sowing',
+                        'First top dressing: 30% at crown root initiation',
+                        'Second top dressing: 20% at tillering'
+                    ];
+                    recommendations.cost = farmSize * 3800;
+                    break;
+                    
+                case 'maize':
+                    recommendations.npk = { n: 150, p: 70, k: 40 };
+                    recommendations.fertilizer = 'NPK (15:15:15) + Urea';
+                    recommendations.application = [
+                        'Basal application: 30% at sowing',
+                        'First top dressing: 40% at knee-high stage',
+                        'Second top dressing: 30% at tasseling'
+                    ];
+                    recommendations.cost = farmSize * 5200;
+                    break;
+                    
+                default:
+                    recommendations.npk = { n: 80, p: 40, k: 20 };
+                    recommendations.fertilizer = 'Balanced NPK fertilizer';
+                    recommendations.application = [
+                        'Basal application: 50% at planting',
+                        'Top dressing: 50% during active growth'
+                    ];
+                    recommendations.cost = farmSize * 3500;
+            }
+            
+            // Adjust for soil type
+            if (soilType === 'sandy') {
+                recommendations.npk.k += 10; // More potassium for sandy soils
+            }
+            
+            if (soilType === 'clay') {
+                recommendations.npk.p += 5; // More phosphorus for clay soils
+            }
+            
+            // Adjust for pH
+            if (soilPh === 'acidic') {
+                recommendations.fertilizer += ' + Lime/Gypsum';
+            }
+            
+            return recommendations;
+        }
+
+        function displayRecommendations(recommendations) {
+            const resultsContainer = document.getElementById('resultsContainer');
+            
+            let html = `
+                <div class="fertilizer-recommendation">
+                    <h3>🌿 Recommended Fertilizer Plan</h3>
+                    <p><strong>Fertilizer Type:</strong> ${recommendations.fertilizer}</p>
+                    
+                    <div class="npk-ratio">
+                        <div class="npk-item">
+                            <div class="letter">N</div>
+                            <div class="value">${recommendations.npk.n}</div>
+                        </div>
+                        <div class="npk-item">
+                            <div class="letter">P</div>
+                            <div class="value">${recommendations.npk.p}</div>
+                        </div>
+                        <div class="npk-item">
+                            <div class="letter">K</div>
+                            <div class="value">${recommendations.npk.k}</div>
+                        </div>
+                    </div>
+                    
+                    <p><strong>NPK Ratio:</strong> ${recommendations.npk.n}:${recommendations.npk.p}:${recommendations.npk.k} kg/acre</p>
+                    
+                    <div class="application-schedule">
+                        <h4>📅 Application Schedule:</h4>
+                        <ul>
+                            ${recommendations.application.map(app => `<li>${app}</li>`).join('')}
+                        </ul>
+                    </div>
+                    
+                    <div class="cost-estimate">
+                        <h4>💰 Estimated Cost:</h4>
+                        <div class="amount">₹${recommendations.cost.toLocaleString()}</div>
+                        <p style="font-size: 0.9rem; margin-top: 0.5rem;">*Cost may vary based on brand and location</p>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 1.5rem; text-align: center;">
+                    <a href="/chatbot" class="btn btn-secondary">Ask for More Details</a>
+                </div>
+            `;
+            
+            resultsContainer.innerHTML = html;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Information - AgriBot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background: #2c5530;
+            color: white;
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 1.5rem;
+        }
+        
+        .sidebar .block {
+            margin-bottom: 2rem;
+        }
+        
+        .sidebar .block-title {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .sidebar ul {
+            list-style: none;
+        }
+        
+        .sidebar li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .sidebar a {
+            display: block;
+            padding: 0.8rem 1.5rem;
+            color: white;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+        
+        .sidebar a:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .sidebar a.active {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 2rem;
+        }
+        
+        .header {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            color: #333;
+        }
+        
+        .crop-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .crop-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.3s;
+        }
+        
+        .crop-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .crop-image {
+            height: 200px;
+            background: linear-gradient(135deg, #90EE90 0%, #228B22 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: white;
+        }
+        
+        .crop-content {
+            padding: 1.5rem;
+        }
+        
+        .crop-content h3 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+        
+        .crop-content p {
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+        
+        .crop-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+        }
+        
+        .crop-season {
+            background: #e8f5e8;
+            color: #2c5530;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.9rem;
+        }
+        
+        .crop-duration {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .action-buttons {
+            margin-top: 2rem;
+            text-align: center;
+        }
+        
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            margin: 0 0.5rem;
+        }
+        
+        .btn-primary {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #218838;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .info-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .info-section h2 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+        }
+        
+        .info-section p {
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .flash-messages {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .flash-message {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .flash-success {
+            background: #28a745;
+        }
+        
+        .flash-danger {
+            background: #dc3545;
+        }
+        
+        .flash-info {
+            background: #17a2b8;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>🌾 AgriBot</h2>
+        
+        <div class="block">
+            <div class="block-title">📊 Dashboard</div>
+            <ul>
+                <li><a href="/user_dashboard">📈 Dashboard</a></li>
+                <li><a href="/chatbot">🤖 Chatbot</a></li>
+            </ul>
+        </div>
+        
+        <div class="block">
+            <div class="block-title">👤 Accounts</div>
+            <ul>
+                <li><a href="/my_profile">📋 My Profile</a></li>
+                <li><a href="/edit_profile">✏️ Edit Profile</a></li>
+                <li><a href="/change_password">🔐 Change Password</a></li>
+                <li><a href="/history">📜 History</a></li>
+            </ul>
+        </div>
+        
+        <div class="block">
+            <div class="block-title">⚙️ General</div>
+            <ul>
+                <li><a href="/crop" class="active">🌱 Crop</a></li>
+                <li><a href="/fertilizer">🌿 Fertilizer</a></li>
+                <li><a href="/feedback">💬 Feedback</a></li>
+                <li><a href="/logout" style="color: #ff6b6b;">🚪 Logout</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="flash-messages">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+
+        <div class="header">
+            <h1>Crop Information</h1>
+        </div>
+
+        <div class="info-section">
+            <h2>🌱 Understanding Crop Selection</h2>
+            <p>Choosing the right crops is essential for successful farming. Consider factors like soil type, climate, water availability, and market demand when selecting crops for your farm. Below are some popular crops with their key characteristics.</p>
+        </div>
+
+        <div class="crop-container">
+            <div class="crop-card">
+                <div class="crop-image">🌾</div>
+                <div class="crop-content">
+                    <h3>Rice</h3>
+                    <p>Rice is a staple food crop that requires plenty of water and warm temperatures. It's suitable for regions with high rainfall or good irrigation facilities.</p>
+                    <div class="crop-details">
+                        <span class="crop-season">Kharif Season</span>
+                        <span class="crop-duration">120-150 days</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="crop-card">
+                <div class="crop-image">🌽</div>
+                <div class="crop-content">
+                    <h3>Maize (Corn)</h3>
+                    <p>Maize is a versatile crop used for food, fodder, and industrial purposes. It grows well in warm climates and well-drained soils.</p>
+                    <div class="crop-details">
+                        <span class="crop-season">Kharif/Rabi</span>
+                        <span class="crop-duration">90-120 days</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="crop-card">
+                <div class="crop-image">🌾</div>
+                <div class="crop-content">
+                    <h3>Wheat</h3>
+                    <p>Wheat is a major cereal crop that prefers cool temperatures and moderate rainfall. It's primarily grown in the rabi season.</p>
+                    <div class="crop-details">
+                        <span class="crop-season">Rabi Season</span>
+                        <span class="crop-duration">110-130 days</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="crop-card">
+                <div class="crop-image">🌱</div>
+                <div class="crop-content">
+                    <h3>Cotton</h3>
+                    <p>Cotton is a fiber crop that requires warm temperatures and well-drained soils. It's an important cash crop for many farmers.</p>
+                    <div class="crop-details">
+                        <span class="crop-season">Kharif Season</span>
+                        <span class="crop-duration">150-180 days</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="crop-card">
+                <div class="crop-image">🌿</div>
+                <div class="crop-content">
+                    <h3>Sugarcane</h3>
+                    <p>Sugarcane is a perennial crop that requires tropical or subtropical climates with plenty of water and sunshine.</p>
+                    <div class="crop-details">
+                        <span class="crop-season">Year-round</span>
+                        <span class="crop-duration">10-18 months</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="crop-card">
+                <div class="crop-image">🌾</div>
+                <div class="crop-content">
+                    <h3>Pulses</h3>
+                    <p>Pulses like lentils, chickpeas, and beans are important protein sources. They improve soil fertility through nitrogen fixation.</p>
+                    <div class="crop-details">
+                        <span class="crop-season">Rabi Season</span>
+                        <span class="crop-duration">90-120 days</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <a href="/crop_advisor" class="btn btn-primary">Get Personalized Crop Advice</a>
+            <a href="/chatbot" class="btn btn-secondary">Ask AgriBot</a>
+        </div>
+    </div>
+
+    <script>
+        // Auto-hide flash messages
+        setTimeout(() => {
+            const flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(msg => {
+                msg.style.opacity = '0';
+                msg.style.transition = 'opacity 0.5s';
+                setTimeout(() => msg.remove(), 500);
+            });
+        }, 5000);
+    </script>
+</body>
+</html>
